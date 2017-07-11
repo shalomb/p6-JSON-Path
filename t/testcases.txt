@@ -1,0 +1,22 @@
+# [/] $
+# [ ] $..*
+# [/] $..author
+# [/] $..book[0,1]
+# [/] $..book[:2]
+# [/] $..book[2]
+# [/] $.store.*
+# [/] $.store.book[*].author
+# [/] $.store..price
+# [/] $..book[-1:]
+# [ ] $..book[?(@.author =~ /.*REES/i)]
+# [ ] $..book[?(@.isbn)]
+# [ ] $..book.length()
+# [ ] $..book[(@.length-1)]
+# [ ] $..book[?(@.price<10)]
+# [ ] $..book[?(@.price <= $['expensive'])]
+# [ ] [?(@.category == 'reference' || @.price > 10)].
+# [ ] [?(!(@.price < 10 && @.category == 'fiction'))]
+# [ ] [?(@.price < 10 && @.category == 'fiction')]
+# [ ] $..[?(@.price > 12 || @.author == "Nigel Rees")]
+
+
