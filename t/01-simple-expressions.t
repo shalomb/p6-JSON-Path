@@ -66,7 +66,7 @@ my $test-data = from-json $json;
 sub run-test($verdict, $expression, $expected, $description) {
   say color('bold magenta') ~ "Running $expression" ~ RESET() if %*ENV<debug>;
   try {
-     my $run = jsonp(object => $test-data, expression => $expression);
+    my $run = jsonp(object => $test-data, expression => $expression);
     if %*ENV<debug> {
       say
         color('yellow')  ~ "<$run>" ~
@@ -387,6 +387,16 @@ my @test_cases = (
 },
 
 {
+  my $h =$test-data<store><book>.map:{ $_<author> };
+  run-test('ok', '$..author', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>.map:{ $_<author> };
+  run-test('ok', '$..book..author', $h, 'deepscan recursive');
+},
+
+{
   my $h =$test-data<store><book>;
   run-test('ok', '$..book', $h, 'deepscan recursive');
 },
@@ -397,6 +407,22 @@ my @test_cases = (
     $test-data<store><book>.map({ $_<price> })
   );
   run-test('ok', '$..price', $h, 'deepscan recursive');
+},
+
+{
+  my $h = (
+    $test-data<store><bicycle>.grep({ $_<price> }).map({ $_<price> }),
+    $test-data<store><book>.map({ $_<price> })
+  );
+  run-test('ok', '$.store..price', $h, 'deepscan recursive');
+},
+
+{
+  my $h = (
+    $test-data<store><bicycle>.grep({ $_<price> }).map({ $_<price> }),
+    $test-data<store><book>.map({ $_<price> })
+  );
+  run-test('ok', '$..store..price', $h, 'deepscan recursive');
 },
 
 {
@@ -415,6 +441,11 @@ my @test_cases = (
 },
 
 {
+  my $h =$test-data<store><book>;
+  run-test('ok', '$..book.*', $h, 'deepscan recursive');
+},
+
+{
   my $h =$test-data<store><book>[2];
   run-test('ok', '$..book[2]', $h, 'deepscan recursive');
 },
@@ -430,8 +461,28 @@ my @test_cases = (
 },
 
 {
+  my $h =$test-data<store><book>[0..1];
+  run-test('ok', '$..book[:2]', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>[0..1];
+  run-test('ok', '$..book.[:2]', $h, 'deepscan recursive');
+},
+
+{
   my $h =$test-data<store><book>;
-  run-test('ok', '$..book.*', $h, 'deepscan recursive');
+  run-test('ok', '$..book.[*]', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>.map({ $_<author> });
+  run-test('ok', '$..book.[*].author', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>.map({ $_<author> })[2];
+  run-test('ok', '$..book..author[2]', $h, 'deepscan recursive');
 },
 
 );

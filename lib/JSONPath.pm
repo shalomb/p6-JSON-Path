@@ -9,24 +9,6 @@ use Assertions;
 
 %*ENV<debug> //= 0;
 
-# $.store.book[*].author
-# $..author
-# $.store.*
-# $.store..price
-# $..book[2]
-# $..book[(@.length-1)]  $..book[-1:]
-# $..book[0,1]           $..book[:2]
-# $..book[?(@.isbn)]
-# $..book[?(@.price<10)]
-# $..book[?(@.price <= $['expensive'])]
-# $..book[?(@.author =~ /.*REES/i)]
-# $..book.length()
-# $..*
-# $..[?(@.price > 12 || @.author == "Nigel Rees")]
-# [?(@.price < 10 && @.category == 'fiction')]
-# [?(@.category == 'reference' || @.price > 10)].
-# [?(!(@.price < 10 && @.category == 'fiction'))]
-
 grammar JSONPParser {
   token TOP { <sigil> <expr>* }
 
@@ -134,12 +116,12 @@ class JSONPActions {
   }
   
   method subscript:sym<star> ($/) {
-    note "ss:star  > $/ > {$obj.WHAT.Str}".indent(2) if %*ENV<debug> == 1;
+    note "ss:star > $/ > {$obj.WHAT.Str}".indent(2) if %*ENV<debug> == 1;
     make $obj;
   }
 
   method subscript:sym<array> ($/) {
-    note "ss:array  > $/ ".indent(4) if %*ENV<debug> == 1;
+    note "ss:array > $/ ".indent(4) if %*ENV<debug> == 1;
     if my $i = $<array-subscript><num> {
       # make $obj = $obj[$i];
     }
@@ -180,8 +162,7 @@ class JSONPActions {
       make $obj = @i.elems > 1 ?? $obj[ @i ] !! $obj[ @i.first ];
     }
     else {
-      dd $obj;
-      #die "Unable to <list> on " ~ $obj.WHAT.perl;
+      die "Unable to <list> on " ~ $obj.WHAT.perl;
     }
   }
 
@@ -211,8 +192,11 @@ class JSONPActions {
     if $<word> {
       make $obj = @ = do-deepscan $obj, $<word>.Str;
     }
+    elsif $<subscript> {
+      make $obj; # TODO - hack
+    }
     else {
-      die "hmm, seems we have an expr? $<expr>";
+      die "Unable to process this kind of deepscan";
     }
   }
 
