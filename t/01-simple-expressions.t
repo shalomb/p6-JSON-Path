@@ -41,7 +41,7 @@ my $json = q:to"JSON";
       "dimensions" : {
         "height": 24,
         "weight": 14,
-        "bars": [ 
+        "bars": [
           1729,
           42,
           {
@@ -68,7 +68,7 @@ sub run-test($verdict, $expression, $expected, $description) {
   try {
      my $run = jsonp(object => $test-data, expression => $expression);
     if %*ENV<debug> {
-      say 
+      say
         color('yellow')  ~ "<$run>" ~
         color('bold black') ~ " == " ~
         color('magenta') ~ "<$expected>";
@@ -78,7 +78,7 @@ sub run-test($verdict, $expression, $expected, $description) {
       my $et = $expected.WHAT.perl;
       my $eq = $rt eq $et;
 
-      say 
+      say
         color('yellow') ~ $rt ~
         color('bold black') ~ " eq " ~
         color('magenta') ~ $et ~
@@ -121,10 +121,10 @@ my @test_cases = (
   nok $run.defined, "'' -- empty expression";
 },
 
-{ run-test('ok',  '$.store', $test-data<store>, 'simple expression' ); }, 
+{ run-test('ok',  '$.store', $test-data<store>, 'simple expression' ); },
 { run-test('nok', '$.store', $test-data, 'simple expression does not return root'); },
 
-{ run-test('ok',  '$.store.book', $test-data<store><book>, 'simple expression - nested dotref' ); }, 
+{ run-test('ok',  '$.store.book', $test-data<store><book>, 'simple expression - nested dotref' ); },
 
 { run-test('ok',  '$.store.book[0]', $test-data<store><book>[0], 'array index'); },
 { run-test('ok',  '$.store.book[3]', $test-data<store><book>[3], 'array index > 0'); },
@@ -204,7 +204,7 @@ my @test_cases = (
     'dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars',
@@ -212,7 +212,7 @@ my @test_cases = (
     'dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars.[1]',
@@ -220,7 +220,7 @@ my @test_cases = (
     'array subscript of dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars.[0,1]',
@@ -228,7 +228,7 @@ my @test_cases = (
     'array subscript of dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars.[2]',
@@ -236,7 +236,7 @@ my @test_cases = (
     'array subscript of dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars.[2].2',
@@ -244,7 +244,7 @@ my @test_cases = (
     'array subscript of dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><bicycle>;
   run-test('ok',
     '$.store.bicycle.*.bars.[2].2.foo',
@@ -252,7 +252,7 @@ my @test_cases = (
     'array subscript of dotref star');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[0:3]',
@@ -260,7 +260,7 @@ my @test_cases = (
     'array slice');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book.[0:1]',
@@ -268,7 +268,7 @@ my @test_cases = (
     'array slice - dot form');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book.[0:2]',
@@ -276,7 +276,7 @@ my @test_cases = (
     'array slice - dot form');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book.[0:0]',
@@ -284,7 +284,7 @@ my @test_cases = (
     'array slice - dot form');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book.[0:3]',
@@ -292,7 +292,7 @@ my @test_cases = (
     'array slice - dot form');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[:2]',
@@ -300,7 +300,7 @@ my @test_cases = (
     'array slice missing start');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[2:]',
@@ -308,7 +308,7 @@ my @test_cases = (
     'array slice missing end');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[:7]',
@@ -316,7 +316,7 @@ my @test_cases = (
     'array slice to index out of bounds');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[7:]',
@@ -324,7 +324,7 @@ my @test_cases = (
     'array slice starting from index out of bounds');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[-1:]',
@@ -332,7 +332,7 @@ my @test_cases = (
     'array slice');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[-2:]',
@@ -340,7 +340,7 @@ my @test_cases = (
     'array slice negative start, missing end');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[:-1]',
@@ -348,7 +348,7 @@ my @test_cases = (
     'array slice missing start, negative end');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[0:-1]',
@@ -356,7 +356,7 @@ my @test_cases = (
     'array slice missing start, negative end');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[-1:-1]',
@@ -364,7 +364,7 @@ my @test_cases = (
     'array slice missing start, negative end');
 },
 
-{ 
+{
   # TODO - This behaviour seems inconsistent across implementations
   my $h =$test-data<store><book>;
   run-test('ok',
@@ -373,7 +373,7 @@ my @test_cases = (
     'array slice negative start, positive end - returns nil');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok',
     '$.store.book[:-1].author',
@@ -381,17 +381,17 @@ my @test_cases = (
     'dotref of array slice missing start negative end');
 },
 
-{ 
+{
   my $h =$test-data<store>;
   run-test('ok', '$..store', $h, 'deepscan simple');
 },
 
-{ 
+{
   my $h =$test-data<store><book>;
   run-test('ok', '$..book', $h, 'deepscan recursive');
 },
 
-{ 
+{
   my $h = (
     $test-data<store><bicycle>.grep({ $_<price> }).map({ $_<price> }),
     $test-data<store><book>.map({ $_<price> })
@@ -399,35 +399,52 @@ my @test_cases = (
   run-test('ok', '$..price', $h, 'deepscan recursive');
 },
 
-{ 
+{
   my $h = $test-data<store><bicycle><dimensions><bars>;
   run-test('ok', '$..bars', $h, 'deepscan recursive');
 },
 
-{ 
+{
   my $h = $test-data<store><bicycle><dimensions><bars>[2]<2><foo>;
   run-test('ok', '$..foo', $h, 'deepscan recursive');
 },
 
-{ 
+{
+  my $h =$test-data<store><book>;
+  run-test('ok', '$..book', $h, 'deepscan recursive');
+},
+
+{
   my $h =$test-data<store><book>[2];
   run-test('ok', '$..book[2]', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>[2,3];
+  run-test('ok', '$..book[2,3]', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>[2,3];
+  run-test('ok', '$..book.[2,3]', $h, 'deepscan recursive');
+},
+
+{
+  my $h =$test-data<store><book>;
+  run-test('ok', '$..book.*', $h, 'deepscan recursive');
 },
 
 );
 
 my @indices =
-  %*ENV<t>.defined 
-  ?? %*ENV<t>.split(',').map:{ $_ < 0 ?? *+$_ !! $_ } 
-  !! 0..*;
+  %*ENV<t>.defined
+    ?? %*ENV<t>.split(',').map:{ $_ < 0 ?? *+$_ !! $_ }
+    !! 0..*;
 @test_cases = @test_cases[ @indices ];
 plan +@test_cases;
 for @test_cases {
   &$_();
 }
-
-# 
-# exit;
 
 #{
 #  line;
@@ -452,7 +469,7 @@ for @test_cases {
 #  ok $run eq $expected, $expression;
 #  line;
 #},
-#
+
 #{
 #  line;
 #  my $expression = '$.store.bicycle.*.bars.[0]';
@@ -464,4 +481,4 @@ for @test_cases {
 #  ok $run eq $expected, $expression;
 #  line;
 #},
-#
+

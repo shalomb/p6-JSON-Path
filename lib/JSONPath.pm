@@ -39,14 +39,14 @@ grammar JSONPParser {
     ] <expr>*
   }
 
-  token deepscan { '..' [ <word> | <star> | <expr> ] }
+  token deepscan { '..' [ <word> | <star> ] }
 
   proto rule dotref {*}
   token dotref:sym<word>     { '.' <word> }
   token dotref:sym<star>     { '.' <star> }
 
   proto rule subscript {*}
-  token subscript:sym<star>  { [ '.' | <word>? ] '['  ~  ']' '*' }
+  token subscript:sym<star>  { [ '.' | <word>? ] '['  ~  ']' <star> }
   token subscript:sym<slice> { [ '.' | <word>? ] '['  ~  ']' <array-slice>       }
   token subscript:sym<array> { [ '.' | <word>? ] '['  ~  ']' <array-subscript>   }
   token subscript:sym<assoc> { [ '.' | <word>? ] "['" ~ "']" <between-brackets>  }
@@ -192,23 +192,28 @@ class JSONPActions {
   method deepscan($/) {
     note "deepscan > $/".indent(4) if %*ENV<debug>;
 
-    my sub do-deepscan( $obj, $word ) {
+    my sub do-deepscan( $obj, Str $word ) {
       my @results;
 
       if $obj ~~ Hash {
         for $obj.keys -> $k {
-          push @results, $obj{$k} if $k eq $word;
-          push @results, do-deepscan $obj{$k}, $word;
+          push @results, slip $obj{$k} if $k eq $word;
+          push @results, slip do-deepscan $obj{$k}, $word;
         }
       }
       elsif $obj ~~ List|Array {
-        push @results, do-deepscan $obj[$_], $word for $obj.keys;
+        push @results, slip do-deepscan $obj[$_], $word for $obj.keys;
       }
 
       return @results if @results;
     }
 
-    make $obj = @ = do-deepscan $obj, $<word>;
+    if $<word> {
+      make $obj = @ = do-deepscan $obj, $<word>.Str;
+    }
+    else {
+      die "hmm, seems we have an expr? $<expr>";
+    }
   }
 
 }
