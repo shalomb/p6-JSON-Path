@@ -63,10 +63,10 @@ sub line {
 
 my $test-data = from-json $json;
 
-sub run-test($verdict, $expression, $expected, $description) {
-  say color('bold magenta') ~ "Running $expression" ~ RESET() if %*ENV<debug>;
+sub run-test($verdict, $path, $expected, $description) {
+  say color('bold magenta') ~ "Running $path" ~ RESET() if %*ENV<debug>;
   try {
-    my $run = jsonp(object => $test-data, expression => $expression);
+    my $run = jsonpath(object => $test-data, path => $path);
     if %*ENV<debug> {
       say
         color('yellow')  ~ "<$run>" ~
@@ -90,20 +90,20 @@ sub run-test($verdict, $expression, $expected, $description) {
       when 'ok'  {
         if $expected ~~ Str|Any {
           ok  $run eq $expected,
-            "ok  -- { color('yellow') ~ $expression ~ RESET() } ::= $description"
+            "ok  -- { color('yellow') ~ $path ~ RESET() } ::= $description"
         }
         else {
-          ok  $run == $expected, "ok  -- $expression ::= $description"
+          ok  $run == $expected, "ok  -- $path ::= $description"
         }
       }
       when 'nok' {
-        nok $run == $expected, "nok -- $expression ::= $description"
+        nok $run == $expected, "nok -- $path ::= $description"
       }
     }
     CATCH {
       default {
-        note "failed test for $expression, " ~ .message ~ "\n" ~ .backtrace;
-        ok False, "$verdict -- $expression ::= $description";
+        note "failed test for $path, " ~ .message ~ "\n" ~ .backtrace;
+        ok False, "$verdict -- $path ::= $description";
       }
     }
   }
@@ -116,15 +116,15 @@ my @test_cases = (
 { run-test('nok', '$', $test-data<store><book>, 'root node is not something else' ); },
 
 {
-  my $expression = '';
-  my $run = jsonp(object => $test-data, expression => $expression);
-  nok $run.defined, "'' -- empty expression";
+  my $path = '';
+  my $run = jsonpath(object => $test-data, path => $path);
+  nok $run.defined, "'' -- empty path";
 },
 
-{ run-test('ok',  '$.store', $test-data<store>, 'simple expression' ); },
-{ run-test('nok', '$.store', $test-data, 'simple expression does not return root'); },
+{ run-test('ok',  '$.store', $test-data<store>, 'simple path' ); },
+{ run-test('nok', '$.store', $test-data, 'simple path does not return root'); },
 
-{ run-test('ok',  '$.store.book', $test-data<store><book>, 'simple expression - nested dotref' ); },
+{ run-test('ok',  '$.store.book', $test-data<store><book>, 'simple path - nested dotref' ); },
 
 { run-test('ok',  '$.store.book[0]', $test-data<store><book>[0], 'array index'); },
 { run-test('ok',  '$.store.book[3]', $test-data<store><book>[3], 'array index > 0'); },
@@ -487,7 +487,7 @@ my @test_cases = (
 
 {
   say
-    jsonp(object => $test-data, expression => '$..*');
+    jsonpath(object => $test-data, path => '$..*');
 },
 
 );
@@ -504,37 +504,37 @@ for @test_cases {
 
 #{
 #  line;
-#  my $expression = '$.store.book[0:3]';
+#  my $path = '$.store.book[0:3]';
 #  my $h =$test-data<store><book>[0..2];
 #  say color('yellow') ~
 #    my $expected = $h;
 #  say color('yellow') ~
-#    my $run = jsonp(object => $test-data, expression => $expression);
-#  ok $run eq $expected, $expression;
+#    my $run = jsonpath(object => $test-data, path => $path);
+#  ok $run eq $expected, $path;
 #  line;
 #},
 #
 #{
 #  line;
-#  my $expression = '$.store.bicycle.*.bars[0]';
+#  my $path = '$.store.bicycle.*.bars[0]';
 #  my $h =$test-data<store><bicycle>;
 #  say color('yellow') ~
 #    my $expected = $test-data<store><bicycle><dimensions><bars>[0];
 #  say color('yellow') ~
-#    my $run = jsonp(object => $test-data, expression => $expression);
-#  ok $run eq $expected, $expression;
+#    my $run = jsonpath(object => $test-data, path => $path);
+#  ok $run eq $expected, $path;
 #  line;
 #},
 
 #{
 #  line;
-#  my $expression = '$.store.bicycle.*.bars.[0]';
+#  my $path = '$.store.bicycle.*.bars.[0]';
 #  my $h =$test-data<store><bicycle>;
 #  say color('yellow') ~
 #    my $expected = $test-data<store><bicycle><dimensions><bars>[0];
 #  say color('yellow') ~
-#    my $run = jsonp(object => $test-data, expression => $expression);
-#  ok $run eq $expected, $expression;
+#    my $run = jsonpath(object => $test-data, path => $path);
+#  ok $run eq $expected, $path;
 #  line;
 #},
 

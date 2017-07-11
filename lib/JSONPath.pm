@@ -226,18 +226,37 @@ class JSONPActions {
 
 }
 
-sub jsonp (
+multi sub jsonpath (
   Mu  :$object!,
-  Str :$expression!
-) 
-  is export 
+  Str :$path = '$'
+)
+  is export( :jsonpath )
 {
   my $actions = JSONPActions.new( object => $object );
 
   JSONPParser.parse(
-      $expression,
+      $path,
       actions => JSONPActions
     ).made;
 }
 
+multi sub jsonpath (
+  Mu $object!,
+  Str $path = '$' 
+)
+  is export( :jsonpath )
+{
+  jsonpath( object => $object, path => $path );
+}
+
+# provides a shorthand like so
+#   ($object => q/$.store.book[2].author/).jsonpath
+Pair.^add_fallback(
+  -> $object, $name { $name eq q/jsonpath/ },
+  -> $object, $name {
+    -> $p {
+      jsonpath( object => $object.key, path => $object.value )
+    }
+  }
+);
 
