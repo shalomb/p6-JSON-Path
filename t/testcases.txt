@@ -8,6 +8,7 @@
 # [/] $.store.book[*].author
 # [/] $.store..price
 # [/] $..book[-1:]
+# [?] $..book.2  # This apparently is the same as $..book[2]. Hmm
 # [ ] $..book[?(@.author =~ /.*REES/i)]
 # [ ] $..book[?(@.isbn)]
 # [ ] $..book.length()
