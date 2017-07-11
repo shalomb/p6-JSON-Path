@@ -22,6 +22,7 @@ use Assertions;
 # $..book[?(@.author =~ /.*REES/i)]
 # $..book.length()
 # $..*
+# $..[?(@.price > 12 || @.author == "Nigel Rees")]
 # [?(@.price < 10 && @.category == 'fiction')]
 # [?(@.category == 'reference' || @.price > 10)].
 # [?(!(@.price < 10 && @.category == 'fiction'))]
@@ -95,6 +96,9 @@ class JSONPActions {
     note "expr > $/ ".indent(1) if %*ENV<debug> == 1;
     if $<dotref> {
       make $obj = $<dotref>.made;
+    }
+    elsif $<deepscan> {
+      make $obj = $<deepscan>.made;
     }
   }
 
@@ -176,12 +180,35 @@ class JSONPActions {
       make $obj = @i.elems > 1 ?? $obj[ @i ] !! $obj[ @i.first ];
     }
     else {
-      die "Unable to <list> on " ~ $obj.WHAT.perl;
+      dd $obj;
+      #die "Unable to <list> on " ~ $obj.WHAT.perl;
     }
   }
 
   method num ($/) {
     note "num > $/ ".indent(8) if %*ENV<debug>;
+  }
+
+  method deepscan($/) {
+    note "deepscan > $/".indent(4) if %*ENV<debug>;
+
+    my sub do-deepscan( $obj, $word ) {
+      my @results;
+
+      if $obj ~~ Hash {
+        for $obj.keys -> $k {
+          push @results, $obj{$k} if $k eq $word;
+          push @results, do-deepscan $obj{$k}, $word;
+        }
+      }
+      elsif $obj ~~ List|Array {
+        push @results, do-deepscan $obj[$_], $word for $obj.keys;
+      }
+
+      return @results if @results;
+    }
+
+    make $obj = @ = do-deepscan $obj, $<word>;
   }
 
 }

@@ -381,6 +381,39 @@ my @test_cases = (
     'dotref of array slice missing start negative end');
 },
 
+{ 
+  my $h =$test-data<store>;
+  run-test('ok', '$..store', $h, 'deepscan simple');
+},
+
+{ 
+  my $h =$test-data<store><book>;
+  run-test('ok', '$..book', $h, 'deepscan recursive');
+},
+
+{ 
+  my $h = (
+    $test-data<store><bicycle>.grep({ $_<price> }).map({ $_<price> }),
+    $test-data<store><book>.map({ $_<price> })
+  );
+  run-test('ok', '$..price', $h, 'deepscan recursive');
+},
+
+{ 
+  my $h = $test-data<store><bicycle><dimensions><bars>;
+  run-test('ok', '$..bars', $h, 'deepscan recursive');
+},
+
+{ 
+  my $h = $test-data<store><bicycle><dimensions><bars>[2]<2><foo>;
+  run-test('ok', '$..foo', $h, 'deepscan recursive');
+},
+
+{ 
+  my $h =$test-data<store><book>[2];
+  run-test('ok', '$..book[2]', $h, 'deepscan recursive');
+},
+
 );
 
 my @indices =
