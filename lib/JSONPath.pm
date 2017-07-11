@@ -108,7 +108,7 @@ class JSONPActions {
       make $obj = @ = $obj.keys.map({ $obj{$_} });
     }
     elsif $obj ~~ List {
-      make $obj
+      make $obj = @ = $obj.values
     }
     else {
       die "Unknown type of object processing <star>";
