@@ -7,7 +7,7 @@ use Test;
 use Assertions;
 
 use JSON::Fast;
-use JSONPath;
+use JSONPath :jsonpath;
 
 my $json = q:to"JSON";
 { "store": {
