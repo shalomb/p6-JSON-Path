@@ -485,6 +485,11 @@ my @test_cases = (
   run-test('ok', '$..book..author[2]', $h, 'deepscan recursive');
 },
 
+{
+  say
+    jsonp(object => $test-data, expression => '$..*');
+},
+
 );
 
 my @indices =

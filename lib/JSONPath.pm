@@ -94,11 +94,11 @@ class JSONPActions {
         slip $_{ $<word> } 
       });
     }
-    elsif $obj ~~ Hash {
+    elsif $obj ~~ Hash|Pair {
       make $obj = $obj{$<word>};
     }
     else {
-      die "Unknwon type of object processing <word>"
+      die "Unable to process object of type " ~ $obj.WHAT.perl;
     }
   }
 
@@ -173,18 +173,39 @@ class JSONPActions {
   method deepscan($/) {
     note "deepscan > $/".indent(4) if %*ENV<debug>;
 
-    my sub do-deepscan( $obj, Str $word ) {
+    my multi sub do-deepscan( $obj, '*' ) {
       my @results;
 
       if $obj ~~ Hash {
         for $obj.keys -> $k {
-          push @results, slip $obj{$k} if $k eq $word;
+          push @results, slip $obj{$k};
+          push @results, slip do-deepscan $obj{$k}, '*';
+        }
+      }
+      elsif $obj ~~ List|Array {
+        push @results, slip do-deepscan $obj[$_], '*' for $obj.keys;
+      }
+      else {
+        # warn "Don't know how to descend into object of type " ~ $obj.WHAT.perl;
+        # dd $obj;
+        push @results, slip $obj;
+      }
+
+      return @results if @results;
+    }
+
+    my multi sub do-deepscan( $obj, Str $word ) {
+      my @results;
+
+      if $obj ~~ Hash {
+        for $obj.keys -> $k {
+          push @results, slip $obj{$word} if $k eq $word;
           push @results, slip do-deepscan $obj{$k}, $word;
         }
       }
       elsif $obj ~~ List|Array {
         push @results, slip do-deepscan $obj[$_], $word for $obj.keys;
-      }
+      } 
 
       return @results if @results;
     }
@@ -194,6 +215,9 @@ class JSONPActions {
     }
     elsif $<subscript> {
       make $obj; # TODO - hack
+    }
+    elsif $<star> {
+      make $obj = @ = do-deepscan $obj, '*';
     }
     else {
       die "Unable to process this kind of deepscan";
@@ -215,4 +239,5 @@ sub jsonp (
       actions => JSONPActions
     ).made;
 }
+
 
