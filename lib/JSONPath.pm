@@ -170,6 +170,9 @@ class JSONPActions {
     note "num > $/ ".indent(8) if %*ENV<debug>;
   }
 
+  # TODO
+  # * $..* deepscan is itself probably flaky as there is no consistency across
+  #   implementations. We do it on a best-effort basis.
   method deepscan($/) {
     note "deepscan > $/".indent(4) if %*ENV<debug>;
 
@@ -186,8 +189,6 @@ class JSONPActions {
         push @results, slip do-deepscan $obj[$_], '*' for $obj.keys;
       }
       else {
-        # warn "Don't know how to descend into object of type " ~ $obj.WHAT.perl;
-        # dd $obj;
         push @results, slip $obj;
       }
 

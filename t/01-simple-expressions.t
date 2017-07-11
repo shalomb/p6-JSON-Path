@@ -486,8 +486,13 @@ my @test_cases = (
 },
 
 {
-  say
-    jsonpath(object => $test-data, path => '$..*');
+  my $h =$test-data<store><bicycle>;
+  my $path = '$..*'; 
+  my $run = jsonpath(object => $test-data, path => $path);
+  # TODO
+  # * no order is guaranteed from results - this test is potentially flaky.
+  ok $run[0]<bicycle> eq $h,
+     "ok  -- $path ::= deepscan star"
 },
 
 );
