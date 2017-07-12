@@ -20,4 +20,6 @@
 # [ ] [?(@.price < 10 && @.category == 'fiction')]
 # [ ] $..[?(@.price > 12 || @.author == "Nigel Rees")]
 
+# Extensions
+# [/] $..book[0..*-1]
 

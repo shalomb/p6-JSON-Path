@@ -495,6 +495,33 @@ my @test_cases = (
      "ok  -- $path ::= deepscan star"
 },
 
+{
+  my $h =$test-data<store><book>.map({ $_<author> })[2..3];
+  run-test('ok', '$..book..author[2..3]', $h, 'subscript range');
+},
+
+{
+  my $h =$test-data<store><book>.map({ $_<author> })[0..*-1];
+  run-test('ok', '$..book..author[0..*-1]', $h, 'subscript range');
+},
+
+{
+  my $h =$test-data<store><book>.map({ $_<author> })[*-3..*-1];
+  run-test('ok', '$..book..author[*-3..*-1]', $h, 'subscript range');
+},
+
+{
+  my $path = '$..book..author[*-1..*-3]';
+  my $run = jsonpath(object => $test-data, path => $path);
+  nok $run.elems, "nok -- $path range end-points unordered";
+},
+
+{
+  my $path = '$..book..author[*..*]';
+  my $run = jsonpath(object => $test-data, path => $path);
+  nok $run.defined, "nok -- $path range end-points both stars - returns empty";
+},
+
 );
 
 my @indices =

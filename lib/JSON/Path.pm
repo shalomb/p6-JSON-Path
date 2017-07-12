@@ -29,6 +29,7 @@ grammar JSONPathParser {
   proto rule subscript {*}
   token subscript:sym<star>  { [ '.' | <word>? ] '['  ~  ']' <star> }
   token subscript:sym<slice> { [ '.' | <word>? ] '['  ~  ']' <array-slice>       }
+  token subscript:sym<range> { [ '.' | <word>? ] '['  ~  ']' <array-range>       }
   token subscript:sym<array> { [ '.' | <word>? ] '['  ~  ']' <array-subscript>   }
   token subscript:sym<assoc> { [ '.' | <word>? ] "['" ~ "']" <between-brackets>  }
 
@@ -36,9 +37,10 @@ grammar JSONPathParser {
 
   token array-subscript { [ <list> | <num> ] }
   token array-slice     { <num>? ':'  <num>? }
-  token array-range     { <num>  '..' <num> }
+  token array-range     { <range-endpoint>  '..' <range-endpoint> }
 
   token list { <num>+ %% ',' }
+  token range-endpoint { [ [ <star> '-' ]? <num> | <star> ] }
 
   token star   { '*' }
   token word   { \w+ } # TODO: s/*/+/
@@ -126,14 +128,16 @@ class JSONPathActions {
     }
   }
 
+  my sub index-at( Int $j, $i is copy) {
+    $i = $i.subst(/\*/, '');
+    $i = -1 unless $i.chars;
+    return $i if $i >= 0;
+    (*+$i)($j); # Generate WhateverCode for Int < 0
+  }
+
   method subscript:sym<slice> ($/) {
     note "ss:slice  > $/ ".indent(4) if %*ENV<debug> == 1;
     assert $<array-slice>, '$<array-slice> not set';
-
-    my sub index-at(@arr, $i) {
-      return $i if $i >= 0;
-      (*+$i)(@arr); # Generate WhateverCode for Int < 0
-    }
 
     my Int $start is default(0);
     my Int $end   is default(-1);
@@ -149,9 +153,23 @@ class JSONPathActions {
     }
 
     note "start<$start>, end<$end>".indent(6) if %*ENV<debug>;
-
-    my @indices = index-at($obj, $start) .. index-at($obj, $end);
+    my @indices = index-at($obj.elems, $start) .. index-at($obj.elems, $end);
     make $obj = $obj[ @indices ];
+  }
+
+  method subscript:sym<range> ($/) {
+    note "ss:range  > $/ ".indent(4) if %*ENV<debug> == 1;
+    assert $<array-range>, '$<array-range not set';
+    my ($start, $end) = $<array-range><range-endpoint>>>.Str;
+
+    if so $start&$end eq '*' {
+      make $obj = Nil;
+      return;
+    }
+
+    note "start<$start>, end<$end>".indent(6) if %*ENV<debug>;
+    my @indices = index-at($obj.elems, $start) .. index-at($obj.elems, $end);
+    make $obj = @ = $obj[ @indices ];
   }
 
   method list ($/) {
