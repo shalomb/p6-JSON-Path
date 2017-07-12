@@ -2,14 +2,13 @@
 
 use v6;
 
-unit module JSONPath;
+unit module JSON::Path;
 
-use JSON::Fast;
 use Assertions;
 
 %*ENV<debug> //= 0;
 
-grammar JSONPParser {
+grammar JSONPathParser {
   token TOP { <sigil> <expr>* }
 
   token expr   {
@@ -48,7 +47,7 @@ grammar JSONPParser {
   token op { . ** 1..* }
 }
 
-class JSONPActions {
+class JSONPathActions {
   my $obj;
 
   submethod BUILD (:$object) {
@@ -233,11 +232,11 @@ multi sub jsonpath (
 )
   is export( :jsonpath )
 {
-  my $actions = JSONPActions.new( object => $object );
+  my $actions = JSONPathActions.new( object => $object );
 
-  JSONPParser.parse(
+  JSONPathParser.parse(
       $path,
-      actions => JSONPActions
+      actions => JSONPathActions
     ).made;
 }
 
