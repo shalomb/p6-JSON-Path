@@ -46,3 +46,6 @@ inc/
 
 lib/.precomp/*
 .prove
+
+.session.vim
+Session.vim
