@@ -87,9 +87,9 @@ class JSONPActions {
   method dotref:sym<word> ($/) {
     note "dotref:w > $/ ".indent(2) if %*ENV<debug>;
     assert $<word>, 'dotref:sym<word> not set';
-    if $obj ~~ List {
+    if $obj ~~ Array|List {
       make $obj = @ = $obj.grep({
-        $_ ~~ Hash
+        $_ ~~ Hash|Pair
       }).map({
         slip $_{ $<word> } 
       });
@@ -104,10 +104,10 @@ class JSONPActions {
 
   method dotref:sym<star> ($/) {
     note "dotref:* > $/ > star:$<star> > {$obj.WHAT.perl}".indent(2) if %*ENV<debug> == 1;
-    if $obj ~~ Hash {
+    if $obj ~~ Hash|Pair {
       make $obj = @ = $obj.keys.map({ $obj{$_} });
     }
-    elsif $obj ~~ List {
+    elsif $obj ~~ Array|List {
       make $obj = @ = $obj.values
     }
     else {
@@ -179,13 +179,13 @@ class JSONPActions {
     my multi sub do-deepscan( $obj, '*' ) {
       my @results;
 
-      if $obj ~~ Hash {
+      if $obj ~~ Hash|Pair {
         for $obj.keys -> $k {
           push @results, slip $obj{$k};
           push @results, slip do-deepscan $obj{$k}, '*';
         }
       }
-      elsif $obj ~~ List|Array {
+      elsif $obj ~~ Array|List {
         push @results, slip do-deepscan $obj[$_], '*' for $obj.keys;
       }
       else {
@@ -198,13 +198,13 @@ class JSONPActions {
     my multi sub do-deepscan( $obj, Str $word ) {
       my @results;
 
-      if $obj ~~ Hash {
+      if $obj ~~ Hash|Pair {
         for $obj.keys -> $k {
           push @results, slip $obj{$word} if $k eq $word;
           push @results, slip do-deepscan $obj{$k}, $word;
         }
       }
-      elsif $obj ~~ List|Array {
+      elsif $obj ~~ Array|List {
         push @results, slip do-deepscan $obj[$_], $word for $obj.keys;
       } 
 
