@@ -4,6 +4,7 @@ use v6;
 
 unit module JSON::Path;
 
+use JSON::Path::Filter;
 use Assertions;
 
 %*ENV<debug> //= 0;
@@ -16,7 +17,7 @@ grammar JSONPathParser {
        <deepscan>  |
        <subscript> |
        <dotref>    |
-       <deepscan> 
+       <filter>
     ] <expr>*
   }
 
@@ -27,13 +28,17 @@ grammar JSONPathParser {
   token dotref:sym<star>     { '.' <star> }
 
   proto rule subscript {*}
-  token subscript:sym<star>  { [ '.' | <word>? ] '['  ~  ']' <star> }
-  token subscript:sym<slice> { [ '.' | <word>? ] '['  ~  ']' <array-slice>       }
-  token subscript:sym<range> { [ '.' | <word>? ] '['  ~  ']' <array-range>       }
-  token subscript:sym<array> { [ '.' | <word>? ] '['  ~  ']' <array-subscript>   }
-  token subscript:sym<assoc> { [ '.' | <word>? ] "['" ~ "']" <between-brackets>  }
+  token subscript:sym<filter> { [ '.' | <word>? ] '['  ~  ']' <filter> }
+  token subscript:sym<star>   { [ '.' | <word>? ] '['  ~  ']' <star> }
+  token subscript:sym<slice>  { [ '.' | <word>? ] '['  ~  ']' <array-slice>       }
+  token subscript:sym<range>  { [ '.' | <word>? ] '['  ~  ']' <array-range>       }
+  token subscript:sym<array>  { [ '.' | <word>? ] '['  ~  ']' <array-subscript>   }
 
   token sigil  { <[@$]> }
+
+  token filter { '[?' ~ ']' <filter-expr> }
+  token filter-expr { '(' ~ ')' .+? }
+  #token filter { '[' ~ ']' [ '?' '(' ~ ')' '.*' ] }
 
   token array-subscript { [ <list> | <num> ] }
   token array-slice     { <num>? ':'  <num>? }
@@ -115,7 +120,18 @@ class JSONPathActions {
       die "Unknown type of object processing <star>";
     }
   }
-  
+
+  method filter ($/) {
+    note "filter > $/ >".indent(2) if %*ENV<debug> == 1;
+
+    my $actions = JSONPathFilterActions.new( object => $obj );
+
+    JSONPathFilterParser.parse(
+        $<filter-expr>,
+        actions => JSONPathFilterActions
+      ).made;
+  }
+
   method subscript:sym<star> ($/) {
     note "ss:star > $/ > {$obj.WHAT.Str}".indent(2) if %*ENV<debug> == 1;
     make $obj;

@@ -522,6 +522,11 @@ my @test_cases = (
   nok $run.defined, "nok -- $path range end-points both stars - returns empty";
 },
 
+{
+  my $h =$test-data<store><book>.map({ $_<author> })[*-3..*-1];
+  run-test('ok', '$.store.book[?(@.author)]', $h, 'subscript range');
+},
+
 );
 
 my @indices =
