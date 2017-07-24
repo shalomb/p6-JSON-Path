@@ -3,6 +3,7 @@
 use v6;
 
 use lib 'lib';
+use lib '.';
 
 use Test;
 use Assertions;
@@ -22,7 +23,42 @@ ok jsonpf({}, "$e"), "<$e>";
 },
 
 {
-my $e = '@.foo()';
+my $e = '1';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '1 + 42';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '1 + 42 + 1789';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '@.foo() - 1';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '@.foo() == true';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '@.foo+1 == 42';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '@.foo == False';
+ok jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = '@.foo() == "hello"';
 ok jsonpf({}, "$e"), "<$e>";
 },
 
@@ -45,7 +81,7 @@ ok jsonpf({}, "$e"), "<$e>";
 my $e = '@.foo > 1';
 ok my $m = jsonpf({}, "$e"), "<$e>";
 },
-
+       
 {
 my $e = ' @.foo > 1 ';
 ok my $m = jsonpf({}, "$e"), "<$e>";
@@ -72,6 +108,31 @@ ok my $m = jsonpf({}, "$e"), "<$e>";
 },
 
 {
+my $e = q/ @.foo.bar == "hello world" /;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q< @.foo =~ /hello/ >;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q< @.foo !~ /hello/ >;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q< @.foo ~~ /hello/ >;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q< @.foo !~~ /hello/ >;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
 my $e = q/@.foo=="hello" && @.foo/;
 ok my $m = jsonpf({}, "$e"), "<$e>";
 },
@@ -82,7 +143,47 @@ ok my $m = jsonpf({}, "$e"), "<$e>";
 },
 
 {
+my $e = q/!(@.foo=="hello" && @.foo)/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
 my $e = q/(@.foo=="hello" && @.foo != "world")/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/(@.foo=="hello" && @.foo != "world")/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q<(@.foo=="hello" && @.foo =~ /world/)>;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/(@.foo=="hello" && @.foo != "world")/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/(@.foo=="hello" && @.foo != "world") || (@.foo == 1)/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/(@.foo=="hello" && @.foo != "world") || (@.foo == 1 && @.foo != 2)/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/(@.foo=="hello" && @.foo != "world") || (@.foo == 1 && @.foo != 2) && 1/;
+ok my $m = jsonpf({}, "$e"), "<$e>";
+},
+
+{
+my $e = q/!(@.foo=="hello" && @.foo != "world") || (@.foo == 1 && @.foo != 2) && 1/;
 ok my $m = jsonpf({}, "$e"), "<$e>";
 },
 

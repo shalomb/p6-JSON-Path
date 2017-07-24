@@ -7,56 +7,89 @@ unit module JSON::Path::Filter;
 use Assertions;
 
 grammar JSONPathFilterParser {
-  rule TOP  { <expr> <expr>* }
+  rule TOP  { ^ <branch> [ $ || FAILGOAL ] }
 
-  # rule expr    { '('? ~ ')'? [ <subexpr> ] }
-  rule expr    {
-      <assertion> | <assertion> <conjunction> <assertion>
+  method FAILGOAL($goal) {
+    die "Cannot find $goal near position {self.pos}"
   }
 
-  rule assertion {
-      '('? [ <subexpr> [ <conjunction> | <subexpr> ]? ] ')'?
+  rule branch {
+    <negate>? [
+                | [ '(' ~ ')' <expr> ]
+                | [           <expr> ]
+              ]
+      : [ <conjunction> <branch> ] ** 0..1
+  }
+
+  rule expr {
+    <negate>? <subexpr> : [ <conjunction> <subexpr> ] ** 0..1
   }
 
   rule subexpr { 
-      <operand> <op> <operand>
-    | <operand> $<op>=[\=\~] <p5regex>
-    | <operand>
-    | <function>                         # @.length()
-    #[ <operand> <op> <operand> ] #|     # @.length-1, @.price<10
-    # <operand>                          # @.isbn, curnode has property
+    | <operand> :
+      [
+        | [ $<op>=['~~'] | $<op>=<negate>[\~\~] ] $<p6regex>=<regex>
+        | [ $<op>=[\=\~] | $<op>=<negate>[\~] ]   $<p5regex>=<regex>
+      ]
+    | <operand> :
+      [ <op> <operand> ] ** 0..*
+      [
+        <eqop> <operand> [ <op> <operand> ] ** 0..*
+      ] ** 0..*
   }
 
   token operand {
-      [ [<curnode>|<rootnode>] '.' <property> ]    # @.isbn
-    | <real>                                     # 1
-    | <literal>                                  # 'foo'
+    | $<function>=[ <node_identifier> '()' ]
+    |     $<node>=[ <node_identifier> ]
+    | <real>
+    | <literal>
+    | <boolean>
+  }
+
+  token node_identifier {
+    [<curnode> | <rootnode>] '.' [ <property> [ '.' <property> ] ** 0..* ]
   }
 
   token property { \w+ [ '-' \D\w+ ]? }
   token curnode  { '@' }
   token rootnode { '$' }
+  token negate   { '!' }
 
   token function { <operand>'()' } # length()
 
   token conjunction { [ '&&' | '||' | 'and' | 'or' ] }
 
-  token op       {
-    [
-      [ '+' | '-' | '*' | '/' | '%' ]  | 
-      [ '=' | '<' | '>' ] '='? |
-      '!='
+  token eqop {
+    | '==' | '!=' | '~~' | '!~~' | '===' | '=~=' | '=:='
+    | '<=>' | 'cmp' | 'leg'
+    | 'eq' | 'ne' | 'eqv' | 'before' | 'after'
+    | [ '<' | '>' ] '='? | 'ge' | 'gt' | 'le' | 'lt'
+  }
+
+  token op {
+    [ 
+      | '+' | '-' | '*' | '/' | '%' | '%%' | '**' | '~'
+      | 'div' | 'mod' | 'gcd' | 'lcm' 
     ]
   }
+
+  proto token boolean      { * }
+  token boolean:sym<True>  { <[Tt]>rue  }
+  token boolean:sym<False> { <[Ff]>alse }
 
   token literal {
       "'" <(<-[']>*)> "'"    # stuff inbetween '' - bug with ' ~ ' <(...)> '
     | '"' <(<-["]>*)> '"'    # stuff inbetween "" - bug with " ~ " <(...)> "
   }  
-  token p5regex {
-    '/' <(<-[/]>+)> '/'
+  token regex {
+    '/' <(<-[/]>+)> '/'      #' /foo? b[ae]r/
   }
-  token real    { '-'? \d+ [ '.' \d+ ]? }
+  token real    {
+    '-'?
+    \d+ 
+    [ '.' \d+ ]?
+    [ e <[+-]>? \d+ ]?
+  }
 }
 
 class JSONPathFilterActions {

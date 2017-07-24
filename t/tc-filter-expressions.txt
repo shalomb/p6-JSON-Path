@@ -1,0 +1,17 @@
+# [/] [?(@.isbn)]
+# [/] [(@.length-1)]
+# [/] [?(@.price<10)]
+# [/] [?(@.length())]
+# [/] [?(@.length() - 1)]
+# [/] [?(@.isbn == "1-1234-5678-9x" && @.price < 12.99 && @.title == "Hitch 22")]
+# [/] [?(@.isbn == "1-1234-5678-9x" && @.price < 12.99 && @.title == "Hitch 22") && !(@.paperback)]
+# [/] [?(@.isbn == "1-1234-5678-9x" && @.price < 12.99 && @.title == "Hitch 22") && (@.cover == "paperback")]
+# [/] [?(!(@.price < 10 && @.category == 'fiction'))]
+# [/] [?(@.price < 10 && @.category == 'fiction')]
+# [/] [?(@.price > 12 || @.author == "Nigel Rees")]
+# [/] [?(@.author =~ /.*REES/i)]
+# [/] [?(@.author !~ /.*REES/i)]
+# [/] [?(@.author ~~ /.*REES/i)]  # Perl6 regex
+# [/] [?(@.author !~~ /.*REES/i)] # Perl6 regex
+# [/] [?(@.category == 'reference' || @.price > 10)].
+# [ ] [?(@.price <= $['expensive'])]
