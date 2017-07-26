@@ -44,8 +44,7 @@ inc/
 *.sw*
 *.tmp*
 
-.precomp/*
-lib/.precomp/*
+.precomp
 .prove
 
 .session.vim
