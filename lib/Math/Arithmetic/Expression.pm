@@ -1,5 +1,9 @@
 #!/usr/bin/env perl6
 
+# Module based on code from
+# https://rosettacode.org/wiki/Arithmetic_evaluation
+# Original Author Unknown
+
 use v6;
 
 unit module Math::Arithmetic::Expression;
