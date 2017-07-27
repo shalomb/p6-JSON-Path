@@ -3,65 +3,19 @@
 use v6;
 
 use lib 'lib';
+use lib 't/lib';
+
 use Test;
 use Assertions;
 
-use JSON::Fast;
-use JSON::Path :jsonpath;
+use TestData;
 
-my $json = q:to"JSON";
-{ "store": {
-    "book": [
-      { "category": "reference",
-        "author": "Nigel Rees",
-        "title": "Sayings of the Century",
-        "price": 8.95
-      },
-      { "category": "fiction",
-        "author": "Evelyn Waugh",
-        "title": "Sword of Honour",
-        "price": 12.99
-      },
-      { "category": "fiction",
-        "author": "Herman Melville",
-        "title": "Moby Dick",
-        "isbn": "0-553-21311-3",
-        "price": 8.99
-      },
-      { "category": "fiction",
-        "author": "J. R. R. Tolkien",
-        "title": "The Lord of the Rings",
-        "isbn": "0-395-19395-8",
-        "price": 22.99
-      }
-    ],
-    "bicycle": {
-      "color": "red",
-      "price": 19.95,
-      "dimensions" : {
-        "height": 24,
-        "weight": 14,
-        "bars": [
-          1729,
-          42,
-          {
-            "2": {
-              "foo": "bar"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-JSON
+use JSON::Path :jsonpath;
 
 use Terminal::ANSIColor;
 sub line {
   say color('red') ~ ( '=' x 32 ) ~ RESET();
 }
-
-my $test-data = from-json $json;
 
 sub run-test($verdict, $path, $expected, $description) {
   say color('bold magenta') ~ "Running $path" ~ RESET() if %*ENV<debug>;
@@ -109,7 +63,8 @@ sub run-test($verdict, $path, $expected, $description) {
   }
 }
 
-my @test_cases = (
+
+my @test-cases = (
 { nok 1 == False, 'sanity check'; },
 
 { run-test('ok',  '$', $test-data, 'fetch root node' ); },
@@ -529,15 +484,7 @@ my @test_cases = (
 
 );
 
-my @indices =
-  %*ENV<t>.defined
-    ?? %*ENV<t>.split(',').map:{ $_ < 0 ?? *+$_ !! $_ }
-    !! 0..*;
-@test_cases = @test_cases[ @indices ];
-plan +@test_cases;
-for @test_cases {
-  &$_();
-}
+run-test-suite( @test-cases );
 
 #{
 #  line;

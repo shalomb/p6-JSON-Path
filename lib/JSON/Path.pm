@@ -124,12 +124,7 @@ class JSONPathActions {
   method filter ($/) {
     note "filter > $/ >".indent(2) if %*ENV<debug> == 1;
 
-    my $actions = JSONPathFilterActions.new( object => $obj );
-
-    JSONPathFilterParser.parse(
-        $<filter-expr>,
-        actions => JSONPathFilterActions
-      ).made;
+    my $return = JSONPathFilter( object => $obj, expression => $<filter-expr> );
   }
 
   method subscript:sym<star> ($/) {
